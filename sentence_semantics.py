@@ -40,18 +40,18 @@ def encode(texts: [str, list]) -> torch.Tensor:
     return embeddings
 
 
-def compute_similarity(query: str, standard_terms: list) -> list:
+def compute_similarity(query: str, standard_terms: list, standard_terms_embeddings: torch.Tensor) -> list:
     """
     Computes similarity scores of a string query against defined standardized terms
     :param query: a string that represents certain part of text paragraph
     :param standard_terms: a list of standardized phrases
+    :param standard_terms_embeddings: a list of standardized phrases embeddings
     :return: a sorted list that contains standardized phrases and similarity scores sorted in descending order
     """
     query_embeddings = encode(query)
-    standard_terms_embeddings = encode(standard_terms)
 
-    # Compute dot score between query and standard terms embeddings
-    scores = torch.mm(query_embeddings, standard_terms_embeddings.transpose(0, 1))[0].cpu().tolist()
+    # Compute cosine similarity between query and standard terms embeddings
+    scores = torch.nn.functional.cosine_similarity(query_embeddings, standard_terms_embeddings).tolist()
 
     # Combine standard terms and scores
     standard_terms_score_pairs = tuple(zip(standard_terms, scores))

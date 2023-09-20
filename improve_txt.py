@@ -1,5 +1,5 @@
 import utils
-from sentence_semantics import compute_similarity
+from sentence_semantics import compute_similarity, encode
 import spacy
 
 spacy_nlp = spacy.load('en_core_web_sm')
@@ -8,6 +8,7 @@ sample_txt = utils.read_txt('files/sample_text.txt')
 standard_terms = utils.read_csv('files/Standardised terms.csv')
 
 accepted_similarity = 0.3
+standard_terms_embeddings = encode(standard_terms)
 
 
 def process_sentence(sentence_words: list, window_size: int) -> list:
@@ -39,7 +40,7 @@ def process_phrase(words: list) -> tuple:
     :return: a tuple that contains suggested replacement and its similarity score
     """
     phrase = ' '.join(words)
-    suggestions = compute_similarity(phrase, standard_terms)
+    suggestions = compute_similarity(phrase, standard_terms, standard_terms_embeddings)
     return suggestions[0]
 
 
@@ -122,6 +123,7 @@ def analyze_txt(user_txt: str) -> [list, list]:
         all_suggestions.append([sentence.text, suggestion_pairs])
         modified_sentences.append(apply_suggestions(sentence_words, suggestions))
 
+    print(all_suggestions)
     return all_suggestions, modified_sentences
 
 
